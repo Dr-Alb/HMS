@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center align-items-center" style="min-height: 75vh;">
+    <div class="col-md-5">
+        <div class="card shadow-lg border-0 rounded-3">
+            <div class="card-header bg-knh text-white text-center py-4 border-0">
+                <h3 class="mb-1 fw-bold">Kenyatta National Hospital</h3>
+                <small class="text-white-50">Staff & Patient Access Portal</small>
+            </div>
+            <div class="card-body p-4 p-md-5">
+                <form method="POST" action="{{ url_for('login') }}" autocomplete="off">
+                    
+                    <div class="mb-4">
+                        <label for="username" class="form-label fw-semibold text-secondary">Username</label>
+                        <input type="text" class="form-control form-control-lg border-2" id="username" name="username" placeholder="e.g., dr_kamau" required>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="password" class="form-label fw-semibold text-secondary">Password</label>
+                        <input type="password" class="form-control form-control-lg border-2" id="password" name="password" placeholder="••••••••" required>
+                    </div>
+
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg bg-knh border-0 shadow-sm fw-bold">Secure Sign In</button>
+                    </div>
+                    
+                </form>
+                <div class="text-center mt-3">
+    <p class="small text-muted">New patient? <a href="{{ url_for('register') }}" class="text-decoration-none fw-bold text-primary">Create an account here</a></p>
+</div>
+            </div>
+            <div class="card-footer text-center bg-white border-0 py-3 text-muted">
+                <small>Academic Prototype v1.0 &copy; 2026</small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

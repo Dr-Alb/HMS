@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div>
+            <h2 class="fw-bold text-dark mb-1">🛡️ Core System Security Audit Trails</h2>
+            <p class="text-muted small mb-0">Review real-time transactional logs, user authentication traces, and critical operational system footprints.</p>
+        </div>
+        <a href="{{ url_for('users') }}" class="btn btn-outline-danger btn-sm fw-bold px-3">← Back to Analytics Hub</a>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-3">
+        <div class="card-header bg-dark text-white py-3">
+            <h5 class="mb-0 fw-bold text-white">📋 Immutable System Security Ledger (Recent Actions)</h5>
+        </div>
+        <div class="card-body p-4 bg-white">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle" style="font-size: 13px;">
+                    <thead class="table-light text-secondary">
+                        <tr>
+                            <th style="width: 80px;">Log ID</th>
+                            <th style="width: 180px;">Timestamp</th>
+                            <th style="width: 150px;">Target User / Actor</th>
+                            <th style="width: 130px;">Action Category</th>
+                            <th>Footprint Trace Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if logs %}
+                            {% for log in logs %}
+                            <tr>
+                                <td><code class="text-secondary">#LOG-{{ log.id }}</code></td>
+                                <td class="text-muted fw-semibold">
+                                    {{ log.timestamp.strftime('%d %b %Y, %I:%M:%S %p') if log.timestamp else 'N/A' }}
+                                    <span class="text-success small ms-1">(EAT)</span>
+                                </td>
+                                <td>
+                                    <div class="fw-bold text-dark">
+                                        👤 {{ log.user.username if log.user else 'System / Guest' }}
+                                    </div>
+                                    <small class="badge bg-light text-dark border font-monospace text-uppercase" style="font-size: 9px;">
+                                        {{ log.user.role if log.user else 'Anonymous' }}
+                                    </small>
+                                </td>
+                                <td>
+                                    {% set act = log.action.lower() if log.action else '' %}
+                                    {% if 'login' in act or 'auth' in act %}
+                                        <span class="badge bg-primary text-uppercase w-100 py-1">🔑 AUTH LOOP</span>
+                                    {% elif 'create' in act or 'register' in act or 'add' in act %}
+                                        <span class="badge bg-success text-uppercase w-100 py-1">➕ INSERT DATA</span>
+                                    {% elif 'update' in act or 'edit' in act or 'stock' in act %}
+                                        <span class="badge bg-warning text-dark text-uppercase w-100 py-1">📝 MODIFICATION</span>
+                                    {% elif 'delete' in act or 'remove' in act or 'void' in act %}
+                                        <span class="badge bg-danger text-uppercase w-100 py-1">🚨 CRITICAL DELETION</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary text-uppercase w-100 py-1">⚙️ OPERATION</span>
+                                    {% endif %}
+                                </td>
+                                <td class="font-monospace text-secondary text-wrap" style="max-width: 400px; font-size: 12px;">
+                                    {{ log.details or 'No raw diagnostic data string compiled for this sequence event.' }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center py-5 text-muted">
+                                    🛡️ Security pipeline fully functional. No system records compiled into the database audit trail yet.
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

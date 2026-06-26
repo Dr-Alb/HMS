@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KNH HMS Prototype</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; }
+        .navbar-brand-knh { font-weight: bold; color: #fff !important; letter-spacing: 1px; }
+        .bg-knh { background-color: #0056b3 !important; } /* Classic Clinical Blue */
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-knh shadow-sm">
+        <div class="container">
+            <a class="navbar-brand navbar-brand-knh" href="#">🏥 KNH - HMS</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav align-items-center">
+                    {% if current_user.is_authenticated %}
+                        <li class="nav-item"><a class="nav-link text-white me-2 small" href="{{ url_for('dashboard') }}">🏠 Dashboard</a></li>
+                        
+                        {% if current_user.role in ['admin', 'receptionist', 'nurse'] %}
+                            <li class="nav-item"><a class="nav-link text-white me-2 small" href="{{ url_for('patients') }}">📁 Patients</a></li>
+                            <li class="nav-item"><a class="nav-link text-white me-2 small" href="{{ url_for('appointments') }}">📅 Bookings</a></li>
+                        {% endif %}
+               <ul class="navbar-nav ms-auto align-items-center">
+    {% if current_user.is_authenticated %}
+        <li class="nav-item">
+            <span class="navbar-text text-white-50 me-3 small">
+                {% if current_user.role|lower == 'patient' %}
+                    🏥 Patient: 
+                {% else %}
+                    🪪 Staff: 
+                {% endif %}
+                <strong class="text-white">{{ current_user.username }}</strong>
+            </span>
+        </li>
+        
+        <li class="nav-item">
+            <a class="btn btn-danger btn-sm fw-bold px-3 shadow-sm text-white" href="{{ url_for('logout') }}">
+                🚪 Logout
+            </a>
+        </li>
+    {% else %}
+        <li class="nav-item">
+            <a class="btn btn-outline-light btn-sm fw-bold px-3" href="{{ url_for('login') }}">Login</a>
+        </li>
+    {% endif %}
+</ul>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="{{ url_for('login') }}">Portal Login</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category if category != 'error' else 'danger' }} alert-dismissible fade show shadow-sm" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+
+    {% if current_user.is_authenticated and (current_user.role.strip().lower() == 'doctor' or current_user.role.strip().lower() == 'patient') %}
+<div id="triage-bot-widget" class="position-fixed bottom-0 end-0 m-4 animate-fade-in" style="z-index: 2000; max-width: 360px;">
+    
+    <button id="bot-launcher" class="btn btn-primary rounded-circle shadow-lg d-flex align-items-center justify-content-center p-0" style="width: 60px; height: 60px;">
+        <span style="font-size: 28px;">🤖</span>
+    </button>
+
+    <div id="bot-chat-window" class="card shadow-lg border-0 d-none" style="border-radius: 15px; overflow: hidden;">
+        <div class="card-header bg-primary text-white d-flex align-items-center justify-content-between py-3">
+            <div class="d-flex align-items-center">
+                <span class="me-2" style="font-size: 22px;">🤖</span>
+                <div>
+                    <h6 class="mb-0 fw-bold text-white small">KNH Clinical Assistant</h6>
+                    <small style="font-size: 10px; opacity: 0.8;">Rule-Based Symptom Triage</small>
+                </div>
+            </div>
+            <button id="bot-close" class="btn-close btn-close-white btn-sm" aria-label="Close"></button>
+        </div>
+        
+        <div id="bot-messages-box" class="card-body bg-light p-3 border-bottom overflow-auto" style="height: 280px; font-size: 13px; scroll-behavior: smooth;">
+            <div class="bg-white p-2 rounded shadow-sm text-secondary mb-2" style="max-width: 85%;">
+                Hello! State the symptoms present below, and I will cross-analyze them against our diagnostic rule indexes.
+            </div>
+        </div>
+
+        <div class="card-footer bg-white p-2 border-0">
+            <div class="input-group">
+                <input type="text" id="bot-text-input" class="form-control form-control-sm border-0 bg-light" placeholder="Type symptoms (e.g. fever, cough)..." autocomplete="off">
+                <button class="btn btn-primary btn-sm px-3" id="bot-send-btn">Send</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const launcher = document.getElementById("bot-launcher");
+    const windowPanel = document.getElementById("bot-chat-window");
+    const closeBtn = document.getElementById("bot-close");
+    const sendBtn = document.getElementById("bot-send-btn");
+    const textInput = document.getElementById("bot-text-input");
+    const messagesBox = document.getElementById("bot-messages-box");
+
+    // Toggle Chat Window visibility
+    launcher.addEventListener("click", () => {
+        windowPanel.classList.remove("d-none");
+        launcher.classList.add("d-none");
+    });
+
+    closeBtn.addEventListener("click", () => {
+        windowPanel.classList.add("d-none");
+        launcher.classList.remove("d-none");
+    });
+
+    // Message transmission execution function
+    async function transmitQuery() {
+        const queryText = textInput.value.trim();
+        if (!queryText) return;
+
+        // Render User Query Bubble
+        messagesBox.insertAdjacentHTML('beforeend', `
+            <div class="bg-primary text-white p-2 rounded shadow-sm mb-2 ms-auto" style="max-width: 85%; width: fit-content;">
+                ${queryText}
+            </div>
+        `);
+        textInput.value = '';
+        messagesBox.scrollTop = messagesBox.scrollHeight;
+
+        try {
+            const serverQuery = await fetch('/api/bot/triage', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: queryText })
+            });
+            const data = await serverQuery.json();
+            
+            // Render Diagnostic Response Bubble
+            messagesBox.insertAdjacentHTML('beforeend', `
+                <div class="bg-white p-2 rounded shadow-sm text-dark border-start border-primary border-3 mb-2" style="max-width: 85%;">
+                    ${data.reply.replace(/\n/g, '<br>')}
+                </div>
+            `);
+            messagesBox.scrollTop = messagesBox.scrollHeight;
+        } catch (error) {
+            console.error("Assistant communications dropped:", error);
+        }
+    }
+
+    sendBtn.addEventListener("click", transmitQuery);
+    textInput.addEventListener("keypress", (e) => { if(e.key === 'Enter') transmitQuery(); });
+});
+</script>
+{% endif %}
+
+</body>
+</html>

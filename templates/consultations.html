@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card shadow-sm border-0 rounded-3">
+            <div class="card-header bg-primary text-white py-3">
+                <h5 class="mb-0 fw-bold">🩺 Your Patient Triage Queue</h5>
+            </div>
+            <div class="list-group list-group-flush rounded-bottom-3">
+                {% if appointments %}
+                    {% for appt in appointments %}
+                        <a href="{{ url_for('consultations', appt_id=appt.id) }}" 
+                           class="list-group-item list-group-item-action p-3 {% if selected_appt and selected_appt.id == appt.id %}active bg-light text-primary border-start border-primary border-4{% endif %}">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="fw-bold mb-1">{{ appt.patient.first_name }} {{ appt.patient.last_name }}</h6>
+                                <small class="text-muted">{{ appt.appointment_date.strftime('%I:%M %p') }}</small>
+                            </div>
+                            <p class="mb-1 small text-secondary text-truncate">{{ appt.reason or 'No complaint specified' }}</p>
+                            <span class="badge {% if appt.status == 'Scheduled' %}bg-warning text-dark{% else %}bg-secondary{% endif %} rounded-pill small">{{ appt.status }}</span>
+                        </a>
+                    {% endfor %}
+                {% else %}
+                    <div class="p-4 text-center text-muted small">No scheduled outpatient folders allocated to your roster today.</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        {% if selected_appt %}
+        <div class="card shadow-sm border-0 rounded-3 p-4 bg-white">
+            <div class="border-bottom pb-3 mb-4">
+                <span class="text-muted small text-uppercase tracking-wider fw-bold">Active Patient File</span>
+                <h3 class="fw-bold text-dark mb-1">{{ selected_appt.patient.first_name }} {{ selected_appt.patient.last_name }}</h3>
+                <p class="text-secondary mb-0">File Reference: <strong class="text-primary">{{ selected_appt.patient.patient_number }}</strong> | Gender: {{ selected_appt.patient.gender }}</p>
+            </div>
+
+            <form method="POST" action="{{ url_for('consultations', appt_id=selected_appt.id) }}">
+                <input type="hidden" name="patient_id" value="{{ selected_appt.patient.id }}">
+
+                <h5 class="fw-bold text-secondary mb-3">1. Case Assessment Details</h5>
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold text-muted">Subjective Symptoms</label>
+                    <textarea class="form-control" name="symptoms" rows="3" placeholder="Log presenting patient conditions..." required></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold text-muted">Objective Diagnosis</label>
+                    <textarea class="form-control" name="diagnosis" rows="2" placeholder="Clinical impression or ICD-10 notes..." required></textarea>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label small fw-semibold text-muted">General Management Notes</label>
+                    <textarea class="form-control" name="notes" rows="2" placeholder="Dietary restrictions, review plans, advice..."></textarea>
+                </div>
+
+                <h5 class="fw-bold text-secondary mb-3">2. Auxiliary Orders (Ancillary Modules)</h5>
+                <div class="row g-3 p-3 bg-light rounded-3 mb-4 mx-0 border">
+                    <div class="col-md-6 border-end">
+                        <label class="form-label small fw-bold text-success">💊 Rx Prescription Order</label>
+                        <input type="text" class="form-control form-control-sm mb-2" name="medicine_name" placeholder="Medicine Name (e.g., Paracetamol)">
+                        <input type="text" class="form-control form-control-sm" name="dosage" placeholder="Dosage Rules (e.g., 1x3 for 5 days)">
+                    </div>
+                    <div class="col-md-6 ps-md-4">
+                        <label class="form-label small fw-bold text-warning">🔬 Lab Test Request</label>
+                        <input type="text" class="form-control form-control-sm" name="lab_test_name" placeholder="Test Name (e.g., Malaria BS/MP)">
+                        <small class="text-muted d-block mt-2">Orders automatically route directly to the Laboratory Desk queue.</small>
+                    </div>
+                </div>
+
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary bg-knh border-0 btn-lg fw-bold shadow-sm">Sign & Save Consultation Chart</button>
+                </div>
+            </form>
+        </div>
+        {% else %}
+        <div class="card h-100 shadow-sm border-0 rounded-3 p-5 bg-white text-center d-flex flex-column justify-content-center align-items-center">
+            <div class="display-1 text-muted mb-3">🩺</div>
+            <h4 class="fw-bold text-dark">Clinical Workstation Idle</h4>
+            <p class="text-muted max-width-400">Please select an assigned patient file from the left tracking queue sheet to initiate a formal consultation summary chart.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

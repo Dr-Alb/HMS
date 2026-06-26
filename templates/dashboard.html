@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm border-0 rounded-3 text-center p-4 bg-white">
+                <div class="my-3">
+                    <img src="https://cdn-icons-png.flaticon.com/512/1144/1144760.png" class="rounded-circle img-fluid" style="width: 100px; height: 100px; object-fit: cover;" alt="Avatar">
+                </div>
+                <h4 class="fw-bold text-dark mb-1">{{ current_user.username }}</h4>
+                <span class="badge bg-primary text-uppercase px-3 py-2 mb-4">{{ current_user.role }}</span>
+                
+                <hr class="text-muted">
+                <p class="text-muted small text-start mb-1">🏥 Connected to KNH Portal</p>
+                <p class="text-muted small text-start">📅 Date: June 20, 2026</p>
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            <h2 class="fw-bold text-dark mb-1">Operational Workspace</h2>
+            <p class="text-muted mb-4">Access authorized modules for your designated staff tier below.</p>
+            
+            {% if role == 'admin' %}
+        {% if role == 'admin' or role == 'pharmacist' %}
+            <div class="card shadow-sm border-0 rounded-3 mb-4 bg-light">
+        <div class="card-body p-3">
+            <div class="d-flex align-items-center justify-content-between border-bottom pb-2 mb-2">
+                <h6 class="fw-bold text-dark m-0 d-flex align-items-center gap-2">
+                    📡 <span class="text-primary font-monospace">SipoiEngine v1.2</span> Live System Dispatches
+                </h6>
+                <span class="spinner-grow spinner-grow-sm text-success" role="status"></span>
+            </div>
+            
+            <div class="notification-feed" style="max-height: 150px; overflow-y: auto;">
+                {% if notifications %}
+                    {% for notification in notifications %}
+                    <div class="p-2 mb-2 bg-white rounded border-start {% if notification.alert_type == 'success' %}border-success{% elif notification.alert_type == 'warning' %}border-warning{% else %}border-primary{% endif %} border-3 small shadow-sm">
+                        <span class="text-muted fw-bold" style="font-size: 10px;">
+                            {{ notification.timestamp.strftime('%I:%M %p') if notification.timestamp else 'SYSTEM' }}
+                        </span> — 
+                        <span class="text-dark">{{ notification.message }}</span>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="p-2 text-center text-muted small">
+                        🏥 System initialized. Persistent SQLite server pipeline verified online. No new dispatches broadcasted.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <div class="card h-100 border-start border-danger border-4 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title fw-bold text-danger">👥 User Management</h5>
+                            <p class="text-muted small">Provision new hospital staff credentials and manage security clearance tiers.</p>
+                            <a href="{{ url_for('users') }}" class="btn btn-danger btn-sm fw-bold px-3">Open Staff Directory</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card h-100 border-start border-dark border-4 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title fw-bold text-dark">📋 System Audit Logs</h5>
+                            <p class="text-muted small">Review real-time electronic health record transactional history logs.</p>
+                            <a href="{{ url_for('audit_logs') }}" class="btn btn-dark btn-sm fw-bold px-3">View Security Logs</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if role == 'receptionist' or role == 'admin' %}
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <div class="card h-100 border-start border-success border-4 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title fw-bold text-success">📝 Patient Registration</h5>
+                            <p class="text-muted small">Create unique KNH digital health folders for oncoming or returning patients.</p>
+                            <a href="{{ url_for('patients') }}" class="btn btn-success btn-sm fw-bold px-3">Register New Patient</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card h-100 border-start border-info border-4 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title fw-bold text-info">📅 Appointment Desk</h5>
+                            <p class="text-muted small">Schedule outpatient clinical consultations and assign physical queues.</p>
+                            <a href="{{ url_for('appointments') }}" class="btn btn-info text-white btn-sm fw-bold px-3">Book Appointment</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if role == 'patient' %}
+            <div class="row g-3 mb-4">
+                <div class="col-md-8 mx-auto">
+                    <div class="card border-start border-primary border-4 shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <h4 class="fw-bold text-primary mb-2">🏥 Welcome to Your Patient Portal</h4>
+                            <p class="text-muted small mb-4">Manage your personal outpatient clinical consultation schedules, check booking approval updates, and view clinical timeline slots.</p>
+                            <a href="{{ url_for('patient_appointments') }}" class="btn btn-primary fw-bold px-4">Go to Appointment Desk</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if role == 'doctor' %}
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <div class="card h-100 border-start border-primary border-4 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title fw-bold text-primary">🩺 Outpatient Queue</h5>
+                            <p class="text-muted small">Access waiting clinical lists, record vitals, and initiate diagnoses.</p>
+                            <a href="{{ url_for('consultations') }}" class="btn btn-primary btn-sm fw-bold px-3">Open Consultations</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if role == 'lab_staff' or role == 'lab staff' or role == 'lab' or role == 'admin' %}
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <div class="card h-100 border-start border-warning border-4 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title fw-bold text-warning">🔬 Specimen Queue</h5>
+                            <p class="text-muted small">Access oncoming lab requests, enter diagnostic results, and track processing states.</p>
+                            <a href="{{ url_for('laboratory') }}" class="btn btn-warning text-dark btn-sm fw-bold px-3">Open Specimen Queue</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}    
+
+
+            {% if role == 'pharmacist' or role == 'admin' %}
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <div class="card h-100 border-start border-success border-4 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title fw-bold text-success">💊 Medication Dispensing</h5>
+                            <p class="text-muted small">Review incoming clinical prescriptions, verify inventory stock counts, and mark orders as Dispensed.</p>
+                            <a href="{{ url_for('pharmacy') }}" class="btn btn-success btn-sm fw-bold px-3">Open Prescription Queue</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+          {% if role == 'accountant' or role == 'admin' %}
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <div class="card h-100 border-start border-dark border-4 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title fw-bold text-dark">💳 KNH Billing Desk</h5>
+                            <p class="text-muted small">Process patient financial records, track outstanding balances, and issue payment clearances.</p>
+                            <a href="{{ url_for('billing') }}" class="btn btn-dark btn-sm fw-bold px-3">Open Invoice Queue</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}  
+
+        </div>
+    </div>
+</div>
+{% endblock %}

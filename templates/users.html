@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4">
+        <h2 class="fw-bold text-dark mb-0">🛡️ System Administration & Analytics Hub</h2>
+        <a href="{{ url_for('audit_logs') }}" class="btn btn-dark fw-bold shadow-sm btn-sm px-3 py-2">
+            🛡️ Inspect Security Audit Trails
+        </a>
+    </div>
+
+    <div class="row mb-5 g-4">
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0 rounded-3 h-100">
+                <div class="card-header bg-white py-3 border-0">
+                    <h5 class="mb-0 fw-bold text-secondary">👥 Patient Demographic Balance</h5>
+                </div>
+                <div class="card-body bg-white d-flex align-items-center justify-content-center" style="position: relative; height:300px;">
+                    <canvas id="genderDoughnutChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0 rounded-3 h-100">
+                <div class="card-header bg-white py-3 border-0">
+                    <h5 class="mb-0 fw-bold text-danger">⚠️ Pharmacy Low-Stock Bins (&lt; 50 Units)</h5>
+                </div>
+                <div class="card-body bg-white" style="position: relative; height:300px;">
+                    <canvas id="stockBarChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-3">
+        <div class="card-header bg-danger text-white py-3">
+            <h5 class="mb-0 fw-bold text-white">👥 Hospital Staff Directory</h5>
+        </div>
+        <div class="card-body p-4 bg-white">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>User ID</th>
+                            <th>Username</th>
+                            <th>Assigned System Role</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if users %}
+                            {% for u in users %}
+                            <tr>
+                                <td>#{{ u.id }}</td>
+                                <td class="fw-semibold text-primary">{{ u.username }}</td>
+                                <td>
+                                    <span class="badge bg-secondary text-uppercase">
+                                        {{ u.role }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="3" class="text-center py-3 text-muted">No system user profiles registered.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<input type="hidden" id="js-gender-labels" value='{{ gender_labels|tojson }}'>
+<input type="hidden" id="js-gender-counts" value='{{ gender_counts|tojson }}'>
+<input type="hidden" id="js-stock-labels" value='{{ stock_labels|tojson }}'>
+<input type="hidden" id="js-stock-counts" value='{{ stock_counts|tojson }}'>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // Read values cleanly from the hidden HTML fields into pure JavaScript variables
+    const genderLabels = JSON.parse(document.getElementById('js-gender-labels').value || '[]');
+    const genderCounts = JSON.parse(document.getElementById('js-gender-counts').value || '[]');
+    const stockLabels = JSON.parse(document.getElementById('js-stock-labels').value || '[]');
+    const stockCounts = JSON.parse(document.getElementById('js-stock-counts').value || '[]');
+
+    // 1. Render Patient Gender Doughnut Chart
+    const ctxGender = document.getElementById('genderDoughnutChart').getContext('2d');
+    new Chart(ctxGender, {
+        type: 'doughnut',
+        data: {
+            labels: genderLabels,
+            datasets: [{
+                data: genderCounts,
+                backgroundColor: ['#0d6efd', '#dc3545', '#ffc107', '#198754'],
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+
+    // 2. Render Pharmacy Low Stock Bar Chart
+    const ctxStock = document.getElementById('stockBarChart').getContext('2d');
+    new Chart(ctxStock, {
+        type: 'bar',
+        data: {
+            labels: stockLabels,
+            datasets: [{
+                label: 'Available Balance (Units)',
+                data: stockCounts,
+                backgroundColor: '#dc3545',
+                borderRadius: 5
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true, max: 50 }
+            },
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

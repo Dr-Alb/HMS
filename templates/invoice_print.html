@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice_INV-{{ bill.id }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #ffffff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #333; }
+        .invoice-box { max-width: 800px; margin: 30px auto; padding: 30px; border: 1px solid #eee; box-shadow: 0 0 10px rgba(0, 0, 0, 0.05); border-radius: 8px; }
+        .hospital-brand { font-size: 24px; font-weight: 800; color: #1a1a1a; letter-spacing: -0.5px; }
+        /* 🚨 THE MAGIC: Auto-triggers print view and hides browser elements when printing */
+        @media print {
+            body { margin: 0; padding: 0; box-shadow: none; }
+            .invoice-box { border: none; box-shadow: none; margin: 0; padding: 15px; width: 100%; }
+            .no-print { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="max-width: 800px; margin: 20px auto; class="d-flex justify-content-between align-items-center no-print border-bottom pb-3 mt-3" style="max-width: 800px; margin-left: auto; margin-right: auto;">
+        <a href="{{ url_for('billing') }}" class="btn btn-secondary btn-sm fw-bold">← Return to Ledger Queue</a>
+        <button onclick="window.print();" class="btn btn-dark btn-sm fw-bold">🖨️ Execute Physical Print / Save PDF</button>
+    </div>
+
+    <div class="invoice-box bg-white">
+        <div class="row align-items-center mb-4">
+            <div class="col-6">
+                <div class="hospital-brand">🏥 KENYATTA NATIONAL HOSPITAL</div>
+                <small class="text-muted d-block">Mbagathi Rd, Nairobi, Kenya</small>
+                <small class="text-muted d-block">Contact: info@knh.or.ke | +254 20 2726300</small>
+            </div>
+            <div class="col-6 text-end">
+                <h2 class="fw-bold text-uppercase text-secondary m-0">INVOICE</h2>
+                <div class="fw-semibold text-dark mt-1">ID: <code class="text-dark fw-bold">#INV-{{ bill.id }}</code></div>
+                <small class="text-muted">Issued: {{ bill.date_issued.strftime('%d %b %Y, %I:%M %p') if bill.date_issued else 'N/A' }}</small>
+            </div>
+        </div>
+
+        <hr class="my-4">
+
+        <div class="row mb-5">
+            <div class="col-6">
+                <p class="text-muted small text-uppercase fw-bold mb-1">Billed To Patient:</p>
+                <h5 class="fw-bold text-dark mb-1">{{ bill.patient.first_name }} {{ bill.patient.last_name }}</h5>
+                <div class="small text-secondary">File Code: <strong>{{ bill.patient.patient_number or 'N/A' }}</strong></div>
+                <div class="small text-secondary">Phone Link: {{ bill.patient.phone or 'N/A' }}</div>
+            </div>
+            <div class="col-6 text-end">
+                <p class="text-muted small text-uppercase fw-bold mb-1">Account Settlement Status:</p>
+                {% if bill.status == 'Unpaid' or bill.status == 'Pending' %}
+                    <h5 class="text-danger fw-bold">❌ OVERDUE / UNPAID</h5>
+                {% else %}
+                    <h5 class="text-success fw-bold">✅ SETTLED / PAID</h5>
+                {% endif %}
+                <small class="text-muted d-block mt-2">Payment Method: Cash / Corporate Insurance</small>
+            </div>
+        </div>
+
+        <table class="table table-bordered align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th class="py-2">Itemized Clinical Service Description</th>
+                    <th class="text-end py-2" style="width: 200px;">Subtotal Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="py-3">
+                        <span class="fw-bold d-block">Outpatient Medical Services Fee</span>
+                        <small class="text-muted">Includes diagnostic routing consultations, vitals assessment, and pharmacy stock processing controls.</small>
+                    </td>
+                    <td class="text-end fw-bold text-dark py-3">KES {{ "%.2f"|format(bill.total_amount) }}</td>
+                </tr>
+                <tr class="table-light">
+                    <td class="text-end fw-bold py-2">Total Outstanding Balance:</td>
+                    <td class="text-end fw-bold text-dark fs-5 py-2">KES {{ "%.2f"|format(bill.total_amount) }}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="row mt-5 pt-4 text-center border-top">
+            <div class="col-12">
+                <p class="small text-muted mb-1">Thank you for choosing Kenyatta National Hospital for your medical needs.</p>
+                <p class="text-secondary tracking-wide uppercase font-monospace m-0" style="font-size: 10px;">Document compiled electronically via KNH HMS Portal Terminal — Signature Not Required.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+window.onload = function() {
+    // Small delay ensures full CSS paint rendering loops clear completely before print dialog blocks execution
+    setTimeout(() => { window.print(); }, 500);
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center align-items-center" style="min-height: 75vh;">
+    <div class="col-md-5">
+        <div class="card shadow border-0 rounded-3">
+            <div class="card-header bg-primary text-white text-center py-3">
+                <h4 class="mb-0 fw-bold text-white">🏥 Create Patient Portal Account</h4>
+                <p class="mb-0 text-white-50 small">Register your digital health file with KNH</p>
+            </div>
+            <div class="card-body p-4 bg-white">
+                
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }} small py-2">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <form method="POST" action="{{ url_for('register') }}">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-secondary">Choose Username</label>
+                        <input type="text" class="form-control" name="username" placeholder="e.g., dactari" required autocomplete="off">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-secondary">Email Address</label>
+                        <input type="email" class="form-control" name="email" placeholder="e.g., dactari@example.com" required autocomplete="off">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-secondary">Password</label>
+                        <input type="password" class="form-control" name="password" placeholder="Create a secure password" required>
+                    </div>
+
+                    <div class="d-grid mt-4">
+                        <button type="submit" class="btn btn-primary fw-bold">Sign Up & Register File</button>
+                    </div>
+                </form>
+
+                <hr class="text-muted my-3">
+                
+                <div class="text-center">
+                    <p class="small text-muted mb-0">Already registered? <a href="{{ url_for('login') }}" class="text-decoration-none fw-bold text-primary">Log In Here</a></p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

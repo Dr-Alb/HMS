@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card shadow-sm border-0 rounded-3">
+            <div class="card-header bg-success text-white py-3">
+                <h5 class="mb-0 fw-bold">📝 New Patient Admission</h5>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST" action="{{ url_for('patients') }}">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-secondary">First Name</label>
+                        <input type="text" class="form-control" name="first_name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-secondary">Last Name</label>
+                        <input type="text" class="form-control" name="last_name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-secondary">Date of Birth</label>
+                        <input type="date" class="form-control" name="dob" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-secondary">Gender Identity</label>
+                        <select class="form-select" name="gender" required>
+                            <option value="" selected disabled>Select Gender</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-secondary">Phone Number</label>
+                        <input type="tel" class="form-control" name="phone" placeholder="e.g., 0712345678" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-secondary">Email Address (Optional)</label>
+                        <input type="email" class="form-control" name="email">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-secondary">Physical Address</label>
+                        <input type="text" class="form-control" name="address" placeholder="e.g., Nairobi, Rongai">
+                    </div>
+                    <div class="d-grid mt-4">
+                        <button type="submit" class="btn btn-success fw-bold">Commit to Registry</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card shadow-sm border-0 rounded-3 p-4 bg-white">
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+                <h4 class="fw-bold text-dark mb-2">📁 Central Patient Index</h4>
+                
+                <form method="GET" action="{{ url_for('patients') }}" class="d-flex gap-2 text-end">
+                    <input type="text" class="form-control form-control-sm" name="search" value="{{ search_query }}" placeholder="Search by Name or KNH ID...">
+                    <button type="submit" class="btn btn-primary btn-sm px-3">Search</button>
+                    {% if search_query %}
+                        <a href="{{ url_for('patients') }}" class="btn btn-secondary btn-sm">Reset</a>
+                    {% endif %}
+                </form>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light text-secondary">
+                        <tr>
+                            <th>KNH File Number</th>
+                            <th>Full Patient Name</th>
+                            <th>Gender</th>
+                            <th>Contact Phone</th>
+                            <th>Joined</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if patients %}
+                            {% for patient in patients %}
+                            <tr>
+                                <td class="fw-bold text-primary">{{ patient.patient_number }}</td>
+                                <td class="fw-semibold">{{ patient.first_name }} {{ patient.last_name }}</td>
+                               <td>{{ patient.gender }}</td>
+                                <td>{{ patient.phone }}</td>
+                                <td class="small text-muted">{{ patient.date_registered.strftime('%d-%b-%Y') }}</td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center py-4 text-muted">No patient health folders discovered matching criteria parameters.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

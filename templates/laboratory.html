@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <!-- A. TOP PANEL: ACTIVE / PENDING LABORATORY SPECIMEN QUEUE -->
+    <div class="col-md-12 mb-4">
+        <div class="card shadow-sm border-0 rounded-3">
+            <div class="card-header bg-warning text-dark py-3">
+                <h5 class="mb-0 fw-bold">🔬 Incoming Specimen Worklist (Pending Orders)</h5>
+            </div>
+            <div class="card-body p-4 bg-white">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light text-secondary">
+                            <tr>
+                                <th>Order Ref</th>
+                                <th>Patient File</th>
+                                <th>Requested Test</th>
+                                <th>Ordering Clinician</th>
+                                <th>Action / Entry</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if pending %}
+                                {% for test in pending %}
+                                <tr>
+                                    <td class="text-muted small">#LB-{{ test.id }}</td>
+                                    <td class="fw-semibold">{{ test.consultation.patient.first_name }} {{ test.consultation.patient.last_name }} ({{ test.consultation.patient.patient_number }})</td>
+                                    <td><span class="badge bg-light text-dark border fw-bold px-2 py-1">{{ test.test_name }}</span></td>
+                                    <td>Dr. {{ test.consultation.doctor.username.capitalize() }}</td>
+                                    <td>
+                                        <!-- Inline Result Entry Form Toggle Panel -->
+                                        <form method="POST" action="{{ url_for('laboratory') }}" class="d-flex gap-2">
+                                            <input type="hidden" name="test_id" value="{{ test.id }}">
+                                            <input type="text" class="form-control form-control-sm" name="results" placeholder="Enter findings (e.g., Parasites Detected, Normal)" required>
+                                            <button type="submit" class="btn btn-warning btn-sm text-dark fw-bold px-3">Post</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="5" class="text-center py-4 text-muted small">No pending specimen test requests found in the system registry.</td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- B. BOTTOM PANEL: COMPLETED LABORATORY DIAGNOSTIC LOG -->
+    <div class="col-md-12">
+        <div class="card shadow-sm border-0 rounded-3">
+            <div class="card-header bg-secondary text-white py-3">
+                <h5 class="mb-0 fw-bold">📋 Historical Diagnostic Archives (Completed)</h5>
+            </div>
+            <div class="card-body p-4 bg-white">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light text-secondary">
+                            <tr>
+                                <th>Order Ref</th>
+                                <th>Patient File</th>
+                                <th>Test Performed</th>
+                                <th>Captured Findings / Results</th>
+                                <th>Completed Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if completed %}
+                                {% for test in completed %}
+                                <tr>
+                                    <td class="text-muted small">#LB-{{ test.id }}</td>
+                                    <td class="fw-semibold">{{ test.consultation.patient.first_name }} {{ test.consultation.patient.last_name }}</td>
+                                    <td>{{ test.test_name }}</td>
+                                    <td class="text-success fw-bold">{{ test.results }}</td>
+                                    <td class="small text-muted">{{ test.test_date.strftime('%d-%b-%Y at %I:%M %p') }}</td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="5" class="text-center py-4 text-muted small">No archival diagnostic logs discovered.</td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

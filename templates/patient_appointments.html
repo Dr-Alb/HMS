@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card shadow-sm border-0 rounded-3">
+            <div class="card-header bg-primary text-white py-3">
+                <h5 class="mb-0 fw-bold text-white">📅 Request Consultation</h5>
+            </div>
+            <div class="card-body p-4 bg-white">
+                <form method="POST" action="{{ url_for('patient_appointments') }}">
+                    
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-secondary">Choose Specialized Doctor</label>
+                        <select class="form-select" name="doctor_id" required>
+                            <option value="" selected disabled>-- Select Medical Officer --</option>
+                            {% for doc in doctors %}
+                                <option value="{{ doc.id }}">Dr. {{ doc.username.capitalize() }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-secondary">Preferred Date & Time</label>
+                        <input type="datetime-local" class="form-control" name="appointment_date" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-secondary">Brief Description of Symptoms</label>
+                        <textarea class="form-control" name="reason" rows="4" placeholder="Describe what you are experiencing..." required></textarea>
+                    </div>
+
+                    <div class="d-grid mt-4">
+                        <button type="submit" class="btn btn-primary fw-bold">Submit Appointment Request</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card shadow-sm border-0 rounded-3 p-4 bg-white">
+            <h4 class="fw-bold text-dark mb-4">📋 Your Outpatient Booking Tracker</h4>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light text-secondary">
+                        <tr>
+                            <th>Ref ID</th>
+                            <th>Assigned Doctor</th>
+                            <th>Requested Date & Time</th>
+                            <th>Current State</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if appointments %}
+                            {% for appt in appointments %}
+                            <tr>
+                                <td class="text-muted small">#{{ appt.id }}</td>
+                                <td class="fw-semibold">Dr. {{ appt.doctor_id }}</td>
+                                <td class="small">{{ appt.appointment_date.strftime('%d-%b-%Y at %I:%M %p') }}</td>
+                                <td>
+                                    {% if appt.status == 'Pending' %}
+                                        <span class="badge bg-secondary px-2 py-1">⏱️ Awaiting Review</span>
+                                    {% elif appt.status == 'Scheduled' %}
+                                        <span class="badge bg-success px-2 py-1">✅ Accepted & Scheduled</span>
+                                    {% elif appt.status == 'Completed' %}
+                                        <span class="badge bg-info px-2 py-1">🏁 Completed</span>
+                                    {% else %}
+                                        <span class="badge bg-danger px-2 py-1">❌ Cancelled</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center py-4 text-muted">You haven't requested any outpatient appointment slots yet.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
