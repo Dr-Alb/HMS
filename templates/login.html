@@ -1,9 +1,48 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="row justify-content-center align-items-center" style="min-height: 75vh;">
-    <div class="col-md-5">
-        <div class="card shadow-lg border-0 rounded-3">
+<style>
+    /* 🏥 Core Body Wallpaper Layer */
+    body {
+        background: linear-gradient(rgba(15, 23, 42, 0.5), rgba(15, 23, 42, 0.7)), 
+                    url('static/project.jpeg') no-repeat center center fixed;
+        background-size: cover;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* 🧼 Frosted Glass Modifiers for your existing Card */
+    .glass-card {
+        background: rgba(255, 255, 255, 0.88) !important;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.25) !important;
+    }
+
+    /* Keeps your custom hospital theme coloring sharp */
+    .bg-knh {
+        background-color: #0d6efd !important; /* Fallback primary if not defined in base */
+    }
+</style>
+
+<div class="position-absolute top-0 start-50 translate-middle-x mt-3 w-100 px-3" style="max-width: 500px; z-index: 1050;">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category if category != 'error' else 'danger' }} alert-dismissible fade show shadow-sm small" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</div>
+
+<div class="row justify-content-center align-items-center w-100 m-0" style="min-height: 90vh;">
+    <div class="col-12 col-sm-10 col-md-7 col-lg-5 col-xl-4">
+        <div class="card shadow-lg border-0 rounded-3 glass-card">
             <div class="card-header bg-knh text-white text-center py-4 border-0">
                 <h3 class="mb-1 fw-bold">Kenyatta National Hospital</h3>
                 <small class="text-white-50">Staff & Patient Access Portal</small>
@@ -27,11 +66,11 @@
                     
                 </form>
                 <div class="text-center mt-3">
-    <p class="small text-muted">New patient? <a href="{{ url_for('register') }}" class="text-decoration-none fw-bold text-primary">Create an account here</a></p>
-</div>
+                    <p class="small text-muted">New patient? <a href="{{ url_for('register') }}" class="text-decoration-none fw-bold text-primary">Create an account here</a></p>
+                </div>
             </div>
-            <div class="card-footer text-center bg-white border-0 py-3 text-muted">
-                <small>Academic Prototype v1.0 &copy; 2026</small>
+            <div class="card-footer text-center bg-transparent border-0 py-3 text-muted">
+                <small>Academic purposes only &copy; 2026</small>
             </div>
         </div>
     </div>
