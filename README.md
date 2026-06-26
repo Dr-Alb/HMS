@@ -56,7 +56,7 @@ text
 Follow these steps to run the environment locally on your development machine:
  1. **Clone the repository:**
    bash
-   git clone [https://github.com/your-username/knh-hms-prototype.git](https://github.com/your-username/knh-hms-prototype.git)
+   git clone [https://github.com/Dr-Alb/HMS.git](https://github.com/Dr-Alb/HMS.git)
    cd knh-hms-prototype
    
    
