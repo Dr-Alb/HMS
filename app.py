@@ -18,6 +18,20 @@ login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 login_manager.login_message_category = 'info'
 
+# --- AUTOMATIC CLOUD DATABASE & DIRECTORY SANITY CHECK ---
+# Check if we are running inside the Render production environment
+if app.config['SQLALCHEMY_DATABASE_URI'].startswith('sqlite:////data/'):
+    # Dynamically ensure the /data directory exists so SQLite doesn't crash
+    os.makedirs('/data', exist_ok=True)
+
+# Instruct Flask to auto-generate missing database tables on startup
+with app.app_context():
+    try:
+        db.create_all()
+        print("📁 Database tables verified/created successfully inside production environment.")
+    except Exception as e:
+        print(f"❌ Error during runtime database creation: {e}")
+
 from datetime import datetime
 
 # ==========================================
