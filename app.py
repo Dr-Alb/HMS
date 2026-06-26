@@ -6,6 +6,18 @@ from flask_bcrypt import Bcrypt
 
 app = Flask(__name__)
 
+# 1. Standard simple path configuration (
+basedir = os.path.abspath(os.path.dirname(__file__))
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'knh_hospital.db')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db = SQLAlchemy(app)
+
+# 2. Automatically generate the database tables when the cloud boots up
+with app.app_context():
+    db.create_all()
+    print("📁 Database file and tables successfully initialized inside the local project root!")
+
 # Basic Configuration
 app.config['SECRET_KEY'] = 'knh_secret_2026'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///knh_hospital.db'
